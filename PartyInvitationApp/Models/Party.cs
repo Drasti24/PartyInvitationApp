@@ -7,7 +7,7 @@ namespace PartyInvitationApp.Models
     public class Party
     {
         public int Id { get; set; }
-
+         
         [Required]
         public string Description { get; set; }
 
