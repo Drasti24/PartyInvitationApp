@@ -1,0 +1,37 @@
+﻿@model IEnumerable<PartyInvitationApp.Models.Party>
+
+@{
+    ViewData["Title"] = "All my parties";
+}
+
+<h1>All my parties</h1>
+<p>
+    <a asp-controller="Party" asp-action="Create">Add a new party</a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Description</th>
+            <th>Date</th>
+            <th>Location</th>
+            <th># of Invites</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var party in Model)
+        {
+            <tr>
+                <td>@party.Description</td>
+                <td>@party.Date.ToString("MM-dd-yyyy hh:mm tt")</td>
+                <td>@party.Location</td>
+                <td>@party.InviteCount</td>
+                <td>
+                    <a asp-action="Manage" asp-route-id="@party.Id" class="btn btn-primary btn-sm">Manage</a>
+                    <a asp-action="Edit" asp-route-id="@party.Id" class="btn btn-secondary btn-sm">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
