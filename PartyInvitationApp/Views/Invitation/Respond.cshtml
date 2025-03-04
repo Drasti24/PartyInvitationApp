@@ -1,0 +1,18 @@
+﻿@model PartyInvitationApp.Models.Invitation
+
+@{
+    ViewData["Title"] = "Invitation response";
+}
+
+<h2>Invitation response</h2>
+<p>You have been invited to the "<strong>@Model.Party.Description</strong>" party!</p>
+<p>Hey @Model.GuestName, you have been invited to the "<strong>@Model.Party.Description</strong>" gathering.</p>
+
+<form asp-action="Respond" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <p>Will you attend?</p>
+    <input type="radio" name="isAttending" value="true" required /> Yes
+    <input type="radio" name="isAttending" value="false" required /> No
+    <br />
+    <button type="submit" class="btn btn-primary mt-3">Submit response</button>
+</form>

@@ -1,0 +1,71 @@
+﻿@model PartyInvitationApp.Models.Party
+
+@{
+    ViewData["Title"] = "Manage your party";
+}
+
+<h2>Manage your party</h2>
+
+<p>
+    <a asp-action="Index">All parties</a> |
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit this party</a> |
+    <a asp-action="Create">Add new party</a>
+</p>
+
+<h4>Party summary:</h4>
+<p>
+    The party "<strong>@Model.Description</strong>" is at <strong>@Model.Location</strong> on <strong>@Model.Date.ToString("MM/dd/yyyy")</strong>
+</p>
+
+<p>
+    <strong>Invites not sent:</strong> @Model.Invitations.Count(i => i.Status == InvitationStatus.InviteNotSent) |
+    <strong>Sent count:</strong> @Model.Invitations.Count(i => i.Status == InvitationStatus.InviteSent) |
+    <strong>Yes count:</strong> @Model.Invitations.Count(i => i.Status == InvitationStatus.RespondedYes) |
+    <strong>No count:</strong> @Model.Invitations.Count(i => i.Status == InvitationStatus.RespondedNo)
+</p>
+
+<h4>Invitations:</h4>
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Guest name</th>
+            <th>Guest email</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var invite in Model.Invitations)
+        {
+            <tr>
+                <td>@invite.GuestName</td>
+                <td>
+                    <a href="mailto:@invite.GuestEmail">@invite.GuestEmail</a>
+                </td>
+                <td>@invite.Status</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h4>Add a new invitation:</h4>
+<form asp-action="AddInvitation" method="post">
+    <input type="hidden" name="partyId" value="@Model.Id" />
+
+    <div class="form-group">
+        <label>Guest name</label>
+        <input type="text" name="guestName" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label>Guest email</label>
+        <input type="email" name="guestEmail" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Create invitation</button>
+</form>
+
+<h4>Actions:</h4>
+<form asp-action="SendInvitations" method="post">
+    <input type="hidden" name="partyId" value="@Model.Id" />
+    <button type="submit" class="btn btn-success mt-3">Send invitations</button>
+</form>
