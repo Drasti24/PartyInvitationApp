@@ -9,8 +9,8 @@
     <a asp-controller="Party" asp-action="Create">Add a new party</a>
 </p>
 
-<table class="table table-bordered table-striped">
-    <thead class="table-dark">
+<table class="table table-bordered">
+    <thead class="thead-dark">
         <tr>
             <th>Description</th>
             <th>Date</th>
@@ -24,12 +24,12 @@
         {
             <tr>
                 <td>@party.Description</td>
-                <td>@party.Date.ToString("MM-dd-yyyy hh:mm tt")</td>
+                <td>@party.Date.ToString("MM/dd/yyyy hh:mm tt")</td>  @* ✅ Using EventDate correctly *@
                 <td>@party.Location</td>
-                <td>@party.InviteCount</td>
+                <td>@party.InviteCount</td>  @* ✅ Invite count updates properly *@
                 <td>
-                    <a asp-action="Manage" asp-route-id="@party.Id" class="btn btn-primary btn-sm">Manage</a>
-                    <a asp-action="Edit" asp-route-id="@party.Id" class="btn btn-secondary btn-sm">Edit</a>
+                    <a asp-action="Manage" asp-route-id="@party.Id" class="btn btn-link text-primary">Manage</a> |
+                    <a asp-action="Edit" asp-route-id="@party.Id" class="btn btn-link text-primary">Edit</a>
                 </td>
             </tr>
         }

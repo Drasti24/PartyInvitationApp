@@ -35,20 +35,28 @@ namespace PartyInvitationApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Respond(int id, bool isAttending)
         {
-            var invitation = await _context.Invitations.FindAsync(id);
+            var invitation = await _context.Invitations
+                .Include(i => i.Party)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
             if (invitation == null)
             {
                 return NotFound();
             }
 
+            // Update the invitation status based on response
             invitation.Status = isAttending ? InvitationStatus.RespondedYes : InvitationStatus.RespondedNo;
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("ThankYou");
+            // Redirect to the Thank You page
+            return RedirectToAction(nameof(ThankYou), new { guestName = invitation.GuestName, isAttending });
         }
 
-        public IActionResult ThankYou()
+        // GET: Invitation/ThankYou
+        public IActionResult ThankYou(string guestName, bool isAttending)
         {
+            ViewData["GuestName"] = guestName;
+            ViewData["IsAttending"] = isAttending;
             return View();
         }
     }

@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using PartyInvitationApp.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PartyInvitationApp.Data;
-using PartyInvitationApp.Models;
+//using PartyInvitationApp.Models;
 using System.Net.Mail;
 using System.Net;
 using System.Threading.Tasks;
-using PartyInvitationApp.Models; 
+
 
 
 namespace PartyInvitationApp.Controllers
@@ -22,9 +23,22 @@ namespace PartyInvitationApp.Controllers
         // GET: Party
         public async Task<IActionResult> Index()
         {
-            var parties = await _context.Parties.ToListAsync();
+            var parties = await _context.Parties
+                .Include(p => p.Invitations) // ✅ Ensure invitations are loaded
+                .Select(p => new Party
+                {
+                    Id = p.Id,
+                    Description = p.Description,
+                    Date = p.Date,
+                    Location = p.Location,
+                    Invitations = p.Invitations // ✅ Load invitations for correct count
+                })
+                .ToListAsync();
+
             return View(parties);
         }
+
+
 
         // GET: Party/Create
         public IActionResult Create()
@@ -161,33 +175,36 @@ namespace PartyInvitationApp.Controllers
 
         private void SendEmail(string guestEmail, string guestName, string partyName, string location, DateTime date, int invitationId)
         {
-            var responseLink = $"http://localhost:7259/Invitation/Respond/{invitationId}";
+            var responseLink = $"http://localhost:5002/Invitation/Respond/{invitationId}";
 
-            var smtpClient = new SmtpClient("smtp.gmail.com")
+            var fromAddress = new MailAddress("flamebondliu@gmail.com", "Party Manager App");
+            var toAddress = new MailAddress(guestEmail, guestName);
+            const string fromPassword = "vvdogzoqedfqswxt";
+
+            var smtp = new SmtpClient
             {
+                Host = "smtp.gmail.com",
                 Port = 587,
-                Credentials = new NetworkCredential("your-email@gmail.com", "your-app-password"),
                 EnableSsl = true,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                Credentials = new NetworkCredential(fromAddress.Address, fromPassword),
+                Timeout = 20000
             };
 
-            var mailMessage = new MailMessage
+            using (var message = new MailMessage(fromAddress, toAddress)
             {
-                From = new MailAddress("your-email@gmail.com"),
                 Subject = $"You're Invited to {partyName}!",
                 Body = $@"
             <h1>Hello {guestName},</h1>
             <p>You have been invited to <strong>{partyName}</strong> at <strong>{location}</strong> on <strong>{date:MM/dd/yyyy}</strong>.</p>
             <p>We would be thrilled to have you! Please let us know your availability by clicking the link below:</p>
             <p><a href='{responseLink}'>Respond to Invitation</a></p>
-            <p>Sincerely,<br>The Party Manager App</p>
-        ",
-                IsBodyHtml = true,
-            };
-
-            mailMessage.To.Add(guestEmail);
-            smtpClient.Send(mailMessage);
+            <p>Sincerely,<br>The Party Manager App</p>",
+                IsBodyHtml = true
+            })
+            {
+                smtp.Send(message);
+            }
         }
-
-
     }
 }
