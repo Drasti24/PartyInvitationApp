@@ -1,4 +1,8 @@
-﻿@model PartyInvitationApp.Models.Party
+﻿@* //DRASTI PATEL
+//PROBLEM ANALYSIS 2
+//MARCH 09, 2025 *@
+
+@model PartyInvitationApp.Models.Party
 
 @{
     ViewData["Title"] = "Manage your party";
@@ -7,16 +11,18 @@
 <h2>Manage your party</h2>
 
 <p>
-    <a asp-action="Index">All parties</a> |
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit this party</a> |
-    <a asp-action="Create">Add new party</a>
+    <a asp-action="Index">All parties</a> |     <!-- Link back to the list of all parties -->
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit this party</a> |    <!-- Link to edit this party -->
+    <a asp-action="Create">Add new party</a>   <!-- Link to create a new party -->
 </p>
 
+<!-- Display party details -->
 <h4>Party summary:</h4>
 <p>
     The party "<strong>@Model.Description</strong>" is at <strong>@Model.Location</strong> on <strong>@Model.Date.ToString("MM/dd/yyyy")</strong>
 </p>
 
+<!-- Display invitation status counts -->
 <p>
     <strong>Invites not sent:</strong> @Model.Invitations.Count(i => i.Status == InvitationStatus.InviteNotSent) |
     <strong>Sent count:</strong> @Model.Invitations.Count(i => i.Status == InvitationStatus.InviteSent) |
@@ -24,6 +30,7 @@
     <strong>No count:</strong> @Model.Invitations.Count(i => i.Status == InvitationStatus.RespondedNo)
 </p>
 
+<!-- Display list of invitations -->
 <h4>Invitations:</h4>
 <table class="table table-bordered table-striped">
     <thead class="table-dark">
@@ -41,12 +48,14 @@
                 <td>
                     <a href="mailto:@invite.GuestEmail">@invite.GuestEmail</a>
                 </td>
-                <td>@invite.Status</td>
+                <td>@System.Text.RegularExpressions.Regex.Replace(invite.Status.ToString(), "([a-z])([A-Z])", "$1 $2")</td>
+                <!-- Adds spaces in enum values (e.g., "InviteSent" → "Invite Sent") -->
             </tr>
         }
     </tbody>
 </table>
 
+<!-- Form to add a new invitation -->
 <h4>Add a new invitation:</h4>
 <form asp-action="AddInvitation" method="post">
     <input type="hidden" name="partyId" value="@Model.Id" />

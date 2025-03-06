@@ -1,18 +1,30 @@
-﻿@model PartyInvitationApp.Models.Invitation
+﻿@* //DRASTI PATEL
+//PROBLEM ANALYSIS 2
+//MARCH 09, 2025 *@
+
+@model PartyInvitationApp.Models.Invitation
 
 @{
     ViewData["Title"] = "Invitation response";
 }
 
 <h2>Invitation response</h2>
+
+<!-- Display the party details -->
 <p>You have been invited to the "<strong>@Model.Party.Description</strong>" party!</p>
 <p>Hey @Model.GuestName, you have been invited to the "<strong>@Model.Party.Description</strong>" gathering.</p>
 
+<!-- Form to allow the guest to respond to the invitation -->
 <form asp-action="Respond" method="post">
+    <!-- Store the invitation ID as a hidden field to track the response -->
     <input type="hidden" name="id" value="@Model.Id" />
+
     <p>Will you attend?</p>
+
+    <!-- Radio buttons for Yes/No response (required field) -->
     <input type="radio" name="isAttending" value="true" required /> Yes
     <input type="radio" name="isAttending" value="false" required /> No
     <br />
+
     <button type="submit" class="btn btn-primary mt-3">Submit response</button>
 </form>

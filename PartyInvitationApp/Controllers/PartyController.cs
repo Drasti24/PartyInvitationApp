@@ -1,13 +1,15 @@
-﻿using PartyInvitationApp.Models;
+﻿//DRASTI PATEL
+//PROBLEM ANALYSIS 2
+//MARCH 09, 2025 
+
+using PartyInvitationApp.Models;
+using PartyInvitationApp.Services; 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PartyInvitationApp.Data;
-//using PartyInvitationApp.Models;
 using System.Net.Mail;
 using System.Net;
 using System.Threading.Tasks;
-
-
 
 namespace PartyInvitationApp.Controllers
 {
@@ -15,38 +17,40 @@ namespace PartyInvitationApp.Controllers
     {
         private readonly ApplicationDbContext _context;
 
+        // Constructor: Initializes the database context for database operations
         public PartyController(ApplicationDbContext context)
         {
             _context = context;
         }
 
         // GET: Party
+        // Retrieves all parties along with their invitations and displays them in the index view
         public async Task<IActionResult> Index()
         {
             var parties = await _context.Parties
-                .Include(p => p.Invitations) // ✅ Ensure invitations are loaded
+                .Include(p => p.Invitations)      // Load related invitations
                 .Select(p => new Party
                 {
                     Id = p.Id,
                     Description = p.Description,
                     Date = p.Date,
                     Location = p.Location,
-                    Invitations = p.Invitations // ✅ Load invitations for correct count
+                    Invitations = p.Invitations 
                 })
                 .ToListAsync();
 
             return View(parties);
         }
 
-
-
         // GET: Party/Create
+        // Displays the form to create a new party
         public IActionResult Create()
         {
             return View();
         }
 
         // POST: Party/Create
+        // Handles the submission of a new party creation form
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Party party)
@@ -60,7 +64,8 @@ namespace PartyInvitationApp.Controllers
             return View(party);
         }
 
-        // GET: Party/Edit/5
+        // GET: Party/Edit/{id}
+        // Displays the edit form for a specific party
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -77,7 +82,8 @@ namespace PartyInvitationApp.Controllers
             return View(party);
         }
 
-        // POST: Party/Edit/5
+        // POST: Party/Edit/{id}
+        // Handles form submission to edit a party
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Party party)
@@ -110,11 +116,12 @@ namespace PartyInvitationApp.Controllers
             return View(party);
         }
 
-        // GET: Party/Manage/5
+        // GET: Party/Manage/{id}
+        // Displays a page to manage a specific party, including viewing invitations
         public async Task<IActionResult> Manage(int id)
         {
             var party = await _context.Parties
-                .Include(p => p.Invitations)
+                .Include(p => p.Invitations)       // Load invitations for this party
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (party == null)
@@ -125,6 +132,8 @@ namespace PartyInvitationApp.Controllers
             return View(party);
         }
 
+        // POST: Party/AddInvitation
+        // Adds a new invitation to the party
         [HttpPost]
         public async Task<IActionResult> AddInvitation(int partyId, string guestName, string guestEmail)
         {
@@ -148,6 +157,7 @@ namespace PartyInvitationApp.Controllers
             return RedirectToAction("Manage", new { id = partyId });
         }
 
+        // POST: Party/SendInvitations
         [HttpPost]
         public async Task<IActionResult> SendInvitations(int partyId)
         {
@@ -162,8 +172,8 @@ namespace PartyInvitationApp.Controllers
 
             foreach (var invite in party.Invitations.Where(i => i.Status == InvitationStatus.InviteNotSent))
             {
-                // ✅ Pass the invitation ID when calling SendEmail
-                SendEmail(invite.GuestEmail, invite.GuestName, party.Description, party.Location, party.Date, invite.Id);
+                // ✅ Call EmailService instead of defining email logic here
+                EmailService.SendInvitation(invite.GuestEmail, invite.GuestName, party.Description, party.Location, party.Date, invite.Id);
 
                 // Mark invitation as sent
                 invite.Status = InvitationStatus.InviteSent;
@@ -173,38 +183,51 @@ namespace PartyInvitationApp.Controllers
             return RedirectToAction("Manage", new { id = partyId });
         }
 
-        private void SendEmail(string guestEmail, string guestName, string partyName, string location, DateTime date, int invitationId)
+        [HttpPost]
+        public async Task<IActionResult> SendInvitation(int partyId)
         {
-            var responseLink = $"http://localhost:5002/Invitation/Respond/{invitationId}";
+            var party = await _context.Parties
+                .Include(p => p.Invitations)
+                .FirstOrDefaultAsync(p => p.Id == partyId);
 
-            var fromAddress = new MailAddress("flamebondliu@gmail.com", "Party Manager App");
-            var toAddress = new MailAddress(guestEmail, guestName);
-            const string fromPassword = "vvdogzoqedfqswxt";
-
-            var smtp = new SmtpClient
+            if (party == null)
             {
-                Host = "smtp.gmail.com",
-                Port = 587,
-                EnableSsl = true,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                Credentials = new NetworkCredential(fromAddress.Address, fromPassword),
-                Timeout = 20000
-            };
-
-            using (var message = new MailMessage(fromAddress, toAddress)
-            {
-                Subject = $"You're Invited to {partyName}!",
-                Body = $@"
-            <h1>Hello {guestName},</h1>
-            <p>You have been invited to <strong>{partyName}</strong> at <strong>{location}</strong> on <strong>{date:MM/dd/yyyy}</strong>.</p>
-            <p>We would be thrilled to have you! Please let us know your availability by clicking the link below:</p>
-            <p><a href='{responseLink}'>Respond to Invitation</a></p>
-            <p>Sincerely,<br>The Party Manager App</p>",
-                IsBodyHtml = true
-            })
-            {
-                smtp.Send(message);
+                return NotFound();
             }
+
+            foreach (var invite in party.Invitations.Where(i => i.Status == InvitationStatus.InviteNotSent))
+            {
+                // ✅ Call EmailService instead of having email logic here
+                EmailService.SendInvitation(invite.GuestEmail, invite.GuestName, party.Description, party.Location, party.Date, invite.Id);
+
+                // Mark invitation as sent
+                invite.Status = InvitationStatus.InviteSent;
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Manage", new { id = partyId });
+        }
+
+
+        // POST: Party/Delete/{id}
+        // Deletes a party along with its invitations
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var party = await _context.Parties
+                .Include(p => p.Invitations)          // Load related invitations
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (party == null)
+            {
+                return NotFound();
+            }
+
+            _context.Parties.Remove(party);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

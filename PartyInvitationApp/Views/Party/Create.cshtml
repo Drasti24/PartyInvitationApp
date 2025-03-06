@@ -1,4 +1,8 @@
-﻿@model PartyInvitationApp.Models.Party
+﻿@* //DRASTI PATEL
+//PROBLEM ANALYSIS 2
+//MARCH 09, 2025 *@
+
+@model PartyInvitationApp.Models.Party
 
 @{
     ViewData["Title"] = "Add a New Party";
@@ -6,19 +10,23 @@
 
 <h2>Add a New Party</h2>
 
+<!-- Party creation form -->
 <form asp-action="Create" method="post">
+    <!-- Input field for party description -->
     <div class="form-group">
-        <label asp-for="Description"></label>
+        <label asp-for="Description"></label>  
         <input asp-for="Description" class="form-control" />
         <span asp-validation-for="Description" class="text-danger"></span>
     </div>
 
+    <!-- Input field for party date -->
     <div class="form-group">
         <label asp-for="Date"></label>
         <input asp-for="Date" type="datetime-local" class="form-control" />
         <span asp-validation-for="Date" class="text-danger"></span>
     </div>
 
+    <!-- Input field for party location -->
     <div class="form-group">
         <label asp-for="Location"></label>
         <input asp-for="Location" class="form-control" />

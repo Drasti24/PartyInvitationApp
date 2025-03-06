@@ -1,23 +1,11 @@
-﻿@* @{
-    ViewData["Title"] = "Home Page";
-}
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
- *@
-
-@{
+﻿@{
     ViewData["Title"] = "Welcome Page";
 }
 
-<h1>Welcome</h1>
+<h1>Welcome Page</h1>
 <p>
     <a asp-controller="Party" asp-action="Index">Manage my parties</a> or
     <a asp-controller="Party" asp-action="Create">Add a new party</a>
 </p>
 
-<footer>
-    @DateTime.Now.Year - Party Invitation App
-</footer>
+

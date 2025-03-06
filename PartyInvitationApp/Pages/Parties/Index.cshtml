@@ -1,14 +1,20 @@
-﻿@model IEnumerable<PartyInvitationApp.Models.Party>
+﻿@* //DRASTI PATEL
+//PROBLEM ANALYSIS 2
+//MARCH 09, 2025 *@
+
+@model IEnumerable<PartyInvitationApp.Models.Party>
 
 @{
     ViewData["Title"] = "All my parties";
 }
 
 <h1>All my parties</h1>
+<!-- Link to add a new party -->
 <p>
     <a asp-controller="Party" asp-action="Create">Add a new party</a>
 </p>
 
+<!-- Table displaying all parties -->
 <table border="1" width="100%" style="border-collapse: collapse;">
     <thead>
         <tr>
@@ -24,10 +30,11 @@
         {
             <tr>
                 <td>@party.Description</td>
-                <td>@party.Date.ToString("MM/dd/yyyy hh:mm tt")</td>  @* Use 'Date' instead of 'EventDate' *@
+                <td>@party.Date.ToString("MM/dd/yyyy hh:mm tt")</td>  
                 <td>@party.Location</td>
-                <td>@party.InviteCount</td>  @* Use 'InviteCount' instead of 'Invitations' *@
+                <td>@party.InviteCount</td>     <!-- Display the number of invitations -->
                 <td>
+                    <!-- Links to manage or edit the party -->
                     <a asp-action="Manage" asp-route-id="@party.Id">Manage</a> |
                     <a asp-action="Edit" asp-route-id="@party.Id">Edit</a>
                 </td>

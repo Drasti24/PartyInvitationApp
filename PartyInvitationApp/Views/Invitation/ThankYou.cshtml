@@ -1,9 +1,14 @@
-﻿@{
+﻿@* //DRASTI PATEL
+//PROBLEM ANALYSIS 2
+//MARCH 09, 2025 *@
+
+@{
     ViewData["Title"] = "Thank You";
 }
 
-<h2>Thank you, @ViewData["GuestName"]!</h2>
+<h2>Thank you, @ViewData["GuestName"]!</h2>   <!-- Displays the guest's name in the thank-you message -->
 
+<!-- Conditional check to display different messages based on the response -->
 @if ((bool)ViewData["IsAttending"])
 {
     <p>We are thrilled that you will be joining us!</p>

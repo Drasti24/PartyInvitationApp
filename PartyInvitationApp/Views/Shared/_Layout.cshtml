@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="~/PartyInvitationApp.styles.css" asp-append-version="true" />
 </head>
 <body>
+    @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -39,9 +41,16 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2025 - PartyInvitationApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            @{
+                var firstVisit = HttpContextAccessor.HttpContext?.Request.Cookies["FirstVisit"];
+                string message = firstVisit == null
+                ? "Hey, welcome to the Party Guest Manager App!"
+                : $"Welcome back! You first used this app on: {firstVisit}";
+            }
+            &copy; @DateTime.Now.Year - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a> - @message
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

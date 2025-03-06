@@ -1,26 +1,57 @@
-﻿using System.Net;
+﻿//DRASTI PATEL
+//PROBLEM ANALYSIS 2
+//MARCH 05, 2025 
+
+using System;
+using System.Net;
 using System.Net.Mail;
 
-public class EmailService
+namespace PartyInvitationApp.Services  
 {
-    public static void SendInvitation(string toEmail, string guestName, string partyName, string partyLocation, DateTime partyDate)
+    // Static class responsible for sending email invitations for the Party Invitation App.
+    public static class EmailService  
     {
-        var smtpClient = new SmtpClient("smtp.gmail.com")
+        public static void SendInvitation(string toEmail, string guestName, string partyName, string partyLocation, DateTime partyDate, int invitationId)
         {
-            Port = 587,
-            Credentials = new NetworkCredential("your-email@gmail.com", "your-app-password"),
-            EnableSsl = true,
-        };
+            //Generates a unique response link for the invitation
+            var responseLink = $"http://localhost:5002/Invitation/Respond/{invitationId}";
 
-        var mailMessage = new MailMessage
-        {
-            From = new MailAddress("your-email@gmail.com"),
-            Subject = $"You're Invited to {partyName}!",
-            Body = $"<h1>Hello {guestName},</h1><p>You're invited to {partyName} at {partyLocation} on {partyDate}.</p>",
-            IsBodyHtml = true,
-        };
+            //Sets up the sender email address and display name
+            var fromAddress = new MailAddress("drasti.patel2402@gmail.com", "Party Manager App");
 
-        mailMessage.To.Add(toEmail);
-        smtpClient.Send(mailMessage);
+            // Creates the recipient email address object
+            var toAddress = new MailAddress(toEmail, guestName);
+
+            //Secure application password 
+            const string fromPassword = "qpihsbzjwwnynoxq";
+
+            // Configures the SMTP client to send emails using Gmail
+            var smtp = new SmtpClient
+            {
+                Host = "smtp.gmail.com",    // Gmail SMTP server address
+                Port = 587,                 // TLS encryption port for secure connection
+                EnableSsl = true,           // Enables secure connection via SSL
+                DeliveryMethod = SmtpDeliveryMethod.Network,       // Sends emails over the network
+                Credentials = new NetworkCredential(fromAddress.Address, fromPassword),       // Authenticates the email sender
+                Timeout = 20000              // Timeout in milliseconds for sending the email
+            };
+
+            //Constructs the email message with HTML formatting
+            using (var message = new MailMessage(fromAddress, toAddress)
+            {
+                Subject = $"You're Invited to {partyName}!",      // Email subject
+                Body = $@"
+                <h1>Hello {guestName},</h1>
+                <p>You have been invited to <strong>{partyName}</strong> at <strong>{partyLocation}</strong> on <strong>{partyDate:MM/dd/yyyy}</strong>.</p>
+                <p>We would be thrilled to have you! Please let us know your availability by clicking the link below:</p>
+                <p><a href='{responseLink}'>Respond to Invitation</a></p>
+                <p>Sincerely,<br>The Party Manager App</p>",
+                IsBodyHtml = true
+            })
+
+            {
+                smtp.Send(message);     //Sends the email invitation
+            }
+        }
     }
 }
