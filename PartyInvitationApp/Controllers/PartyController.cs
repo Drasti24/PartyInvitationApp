@@ -16,11 +16,13 @@ namespace PartyInvitationApp.Controllers
     public class PartyController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly EmailService _emailService;
 
         // Constructor: Initializes the database context for database operations
-        public PartyController(ApplicationDbContext context)
+        public PartyController(ApplicationDbContext context, EmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         // GET: Party
@@ -172,8 +174,8 @@ namespace PartyInvitationApp.Controllers
 
             foreach (var invite in party.Invitations.Where(i => i.Status == InvitationStatus.InviteNotSent))
             {
-                // ✅ Call EmailService instead of defining email logic here
-                EmailService.SendInvitation(invite.GuestEmail, invite.GuestName, party.Description, party.Location, party.Date, invite.Id);
+                // Call EmailService instead of defining email logic here
+                _emailService.SendInvitation(invite.GuestEmail, invite.GuestName, party.Description, party.Location, party.Date, invite.Id);
 
                 // Mark invitation as sent
                 invite.Status = InvitationStatus.InviteSent;
@@ -197,10 +199,7 @@ namespace PartyInvitationApp.Controllers
 
             foreach (var invite in party.Invitations.Where(i => i.Status == InvitationStatus.InviteNotSent))
             {
-                // ✅ Call EmailService instead of having email logic here
-                EmailService.SendInvitation(invite.GuestEmail, invite.GuestName, party.Description, party.Location, party.Date, invite.Id);
-
-                // Mark invitation as sent
+                _emailService.SendInvitation(invite.GuestEmail, invite.GuestName, party.Description, party.Location, party.Date, invite.Id);
                 invite.Status = InvitationStatus.InviteSent;
             }
 

@@ -4,6 +4,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using PartyInvitationApp.Data;
+using PartyInvitationApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);   //Creates a new instance of the web application builder
 
@@ -19,6 +20,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 //Registers IHttpContextAccessor to allow access to HTTP context across the application
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+builder.Services.AddSingleton<EmailService>();
+
 
 var app = builder.Build();    //builds the application
 
